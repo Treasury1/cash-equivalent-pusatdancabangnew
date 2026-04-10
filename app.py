@@ -211,8 +211,19 @@ for indo, eng in bulan_map.items():
     total[ct.tahun] = total[ct.tahun].str.replace(indo, eng, regex=False)
 
     fig_bar = go.Figure()
-    fig_bar.add_bar(x=total["label"], y=total[ct.total], ...)
-    fig_bar.add_scatter(x=total["label"], y=total[ct.total], ...)
+fig_bar.add_bar(
+    x=total["label"],
+    y=total[ct.total],
+    text=bar_texts,
+    textposition="outside"
+)
+
+fig_bar.add_scatter(
+    x=total["label"],
+    y=total[ct.total],
+    mode="lines+markers",
+    line=dict(width=2)
+)
     ymax = total[ct.total].max()
     fig_bar.update_layout(height=360, margin=dict(l=10, r=10, t=10, b=10), yaxis=dict(range=[0, ymax * 1.2]))
 
