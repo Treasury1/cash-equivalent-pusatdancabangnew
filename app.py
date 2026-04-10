@@ -191,56 +191,46 @@ def main():
     ]
 
     # Grafik tren
-# --- FIX: Urut berdasarkan bulan + tetap tampil Indo ---
-bulan_map = {
+    # --- FIX: Urut berdasarkan bulan + tetap Indo (ANTI ERROR) ---
+    bulan_map = {
     "Jan": "Jan", "Feb": "Feb", "Mar": "Mar", "Apr": "Apr",
     "Mei": "May", "Jun": "Jun", "Jul": "Jul", "Agu": "Aug",
     "Sep": "Sep", "Okt": "Oct", "Nov": "Nov", "Des": "Dec"
-}
+    }
 
-bulan_map_reverse = {
+    bulan_map_reverse = {
     "Jan": "Jan", "Feb": "Feb", "Mar": "Mar", "Apr": "Apr",
     "May": "Mei", "Jun": "Jun", "Jul": "Jul", "Aug": "Agu",
     "Sep": "Sep", "Oct": "Okt", "Nov": "Nov", "Dec": "Des"
-}
+    }
 
-# Pastikan string
-total[ct.tahun] = total[ct.tahun].astype(str)
+    # Bersihin string
+    total[ct.tahun] = total[ct.tahun].astype(str).str.strip()
 
-# Convert Indo → English dulu (biar kebaca datetime)
-total["tahun_eng"] = total[ct.tahun].replace(bulan_map, regex=True)
+    # Replace bulan Indo → English
+    for indo, eng in bulan_map.items():
+    total[ct.tahun] = total[ct.tahun].str.replace(indo, eng, regex=False)
 
-# Convert ke datetime
-total["date"] = pd.to_datetime(total["tahun_eng"], format="%Y %b", errors="coerce")
+    # Convert ke datetime (flexible, gak strict)
+    total["date"] = pd.to_datetime(total[ct.tahun], errors="coerce")
 
-# Sort berdasarkan tanggal
-total = total.sort_values("date")
+    # Drop yang error
+    total = total.dropna(subset=["date"])
 
-# Balikin ke format Indo
-total["label"] = total["date"].dt.strftime("%Y %b")
+    # Sort berdasarkan tanggal
+    total = total.sort_values("date")
 
-# Replace balik ke Indo
-for eng, indo in bulan_map_reverse.items():
-    total["label"] = total["label"].str.replace(eng, indo)
+    # Format label Indo lagi
+    total["label"] = total["date"].dt.strftime("%Y %b")
 
-# Numeric
-total[ct.total] = _to_numeric(total[ct.total])
+    for eng, indo in bulan_map_reverse.items():
+    total["label"] = total["label"].str.replace(eng, indo, regex=False)
 
-# Growth
-total["YoY Change %"] = total[ct.total].pct_change() * 100
+    # Numeric
+    total[ct.total] = _to_numeric(total[ct.total])
 
-    bar_texts = []
-    for i, row in total.iterrows():
-        val_text = f"{row[ct.total]:,.0f}"
-        if not pd.isna(row["YoY Change %"]) and i != total.index[0]:
-            if row["YoY Change %"] > 0:
-                bar_texts.append(f"{val_text}<br><span style='color:#2ECC71;'>↑ {row['YoY Change %']:.1f}%</span>")
-            elif row["YoY Change %"] < 0:
-                bar_texts.append(f"{val_text}<br><span style='color:#E74C3C;'>↓ {abs(row['YoY Change %']):.1f}%</span>")
-            else:
-                bar_texts.append(f"{val_text}<br>0.0%")
-        else:
-            bar_texts.append(val_text)
+    # Growth
+    total["YoY Change %"] = total[ct.total].pct_change() * 100
 
     fig_bar = go.Figure()
     fig_bar.add_bar(x=total["label"], y=total[ct.total], text=bar_texts, textposition="outside")
