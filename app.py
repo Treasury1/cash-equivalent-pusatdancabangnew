@@ -227,7 +227,7 @@ fig_bar.add_scatter(
 ymax = total[ct.total].max()
 fig_bar.update_layout(height=360, margin=dict(l=10, r=10, t=10, b=10), yaxis=dict(range=[0, ymax * 1.2]))
 
-    colA, colB = st.columns(2)
+colA, colB = st.columns(2)
     with colA:
         st.subheader("Total Cash and Cash Equivalents")
         st.markdown(_style_grand_total(table_total, label_col="Cabang/Pusat"), unsafe_allow_html=True)
