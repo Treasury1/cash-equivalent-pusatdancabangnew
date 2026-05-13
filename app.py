@@ -228,11 +228,11 @@ ymax = total[ct.total].max()
 fig_bar.update_layout(height=360, margin=dict(l=10, r=10, t=10, b=10), yaxis=dict(range=[0, ymax * 1.2]))
 
 colA, colB = st.columns(2)
-    with colA:
+with colA:
         st.subheader("Total Cash and Cash Equivalents")
         st.markdown(_style_grand_total(table_total, label_col="Cabang/Pusat"), unsafe_allow_html=True)
         st.markdown(f"<div style='font-style:italic;margin-top:6px;'>*Exclude Restricted Deposito: {round_half_up(restricted_total):,.0f}*</div>", unsafe_allow_html=True)
-    with colB:
+with colB:
         st.subheader("Cash and Cash Equivalents Trend")
         st.plotly_chart(fig_bar, use_container_width=True)
 
